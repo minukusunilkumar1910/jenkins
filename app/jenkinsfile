@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = "frontend-app"
+        DEPLOY_PATH = "/var/www/html"
+    }
+
+    stages {
+
+        stage('Clone Code') {
+            steps {
+                git branch: 'main',
+                url: 'https://github.com/yourusername/yourrepo.git'
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('Build Application') {
+            steps {
+                sh 'npm run build'
+            }
+        }
+
+        stage('Deploy to Server') {
+            steps {
+                sh '''
+                    sudo rm -rf $DEPLOY_PATH/*
+                    sudo cp -r build/* $DEPLOY_PATH/
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployment Successful 🚀"
+        }
+        failure {
+            echo "Deployment Failed ❌"
+        }
+    }
+}
